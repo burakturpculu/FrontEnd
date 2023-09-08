@@ -22,7 +22,7 @@ import { Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaLock } from "react-icons/fa";
-import { API } from "./utils/api";
+import { API } from "../utils/api";
 
 const CFaLock = chakra(FaLock);
 
