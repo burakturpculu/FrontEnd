@@ -23,12 +23,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaLock } from "react-icons/fa";
 import { API } from "../utils/api";
+import toast from "react-hot-toast";
 
 const CFaLock = chakra(FaLock);
 
 const App = () => {
   const [showPassword, setShowPassword] = useState(false);
-
   const router = useRouter();
 
   const handleShowClick = () => setShowPassword(!showPassword);
@@ -41,6 +41,14 @@ const App = () => {
 
       router.replace("/dashboard");
     },
+    onError:(error) => {
+      toast.error("Check Username and Password",{
+        duration:3000,
+        position:"top-right"
+      });
+      
+    },
+    
   });
 
   return (

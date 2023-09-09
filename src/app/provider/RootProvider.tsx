@@ -5,6 +5,7 @@ import MeloAppQueryClientProvider from "./MeloAppQueryClientProvider";
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { AppProgressBar } from "next-nprogress-bar";
+import { Toaster } from "react-hot-toast";
 
 export default function RootProvider({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function RootProvider({ children }: { children: ReactNode }) {
         <AppProgressBar />
       </Suspense>
       <ChakraProvider>{children}</ChakraProvider>
+      <Toaster toastOptions={{duration:5000,position:"top-right"}}/>
     </MeloAppQueryClientProvider>
   );
 }
