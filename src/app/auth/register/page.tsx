@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Avatar,
@@ -16,30 +16,41 @@ import {
   Link,
   Stack,
   chakra,
-} from "@chakra-ui/react";
-import { useMutation } from "@tanstack/react-query";
-import { Field, Form, Formik } from "formik";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { FaLock } from "react-icons/fa";
-import { API } from "./utils/api";
+} from '@chakra-ui/react';
+import { useMutation } from '@tanstack/react-query';
+import { Field, Form, Formik } from 'formik';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FaLock } from 'react-icons/fa';
+import { API } from '../../utils/api';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../../stores/auth.store';
 
 const CFaLock = chakra(FaLock);
 
 const App = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  // const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  // const setRefreshToken = useAuthStore((state) => state.setRefreshToken);
 
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleShowClick = () => setShowPassword(!showPassword);
 
   const login = useMutation({
-    mutationFn: (data: MeloAppUser) =>
-      API.post("http://localhost:3000/api/login", data),
-    onSuccess: () => {
-      alert("login is success");
-
-      router.replace("/dashboard");
+    mutationFn: (response_data: MeloAppUser) =>
+      API.post('/login', response_data),
+    onSuccess: (response_data) => {
+      const { data } = response_data;
+      window.localStorage.setItem('accessToken', data.accessToken);
+      window.localStorage.setItem('refreshToken', data.refreshToken);
+      router.replace('/dashboard');
+    },
+    onError: () => {
+      toast.error('Check Username and Password', {
+        duration: 3000,
+        position: 'top-right',
+      });
     },
   });
 
@@ -53,7 +64,7 @@ const App = () => {
       alignItems="center"
     >
       <Formik
-        initialValues={{ email: "", password: "" }}
+        initialValues={{ email: '', password: '' }}
         onSubmit={(values) => {
           if (login.isLoading) {
             return;
@@ -70,7 +81,7 @@ const App = () => {
         >
           <Avatar bg="teal.500" />
           <Heading color="teal.400">Welcome</Heading>
-          <Box minW={{ base: "90%", md: "468px" }}>
+          <Box minW={{ base: '90%', md: '468px' }}>
             <Form>
               <Stack
                 spacing={4}
@@ -78,11 +89,28 @@ const App = () => {
                 backgroundColor="whiteAlpha.900"
                 boxShadow="md"
               >
+                <Field name="name">
+                  {({ field, form }: any) => (
+                    <FormControl
+                      isInvalid={Boolean(
+                        form.errors.email && form.touched.email,
+                      )}
+                    >
+                      <Input
+                        type="name"
+                        placeholder="Name"
+                        id="name"
+                        {...field}
+                      />
+                      <FormErrorMessage>required</FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
                 <Field name="email">
                   {({ field, form }: any) => (
                     <FormControl
                       isInvalid={Boolean(
-                        form.errors.email && form.touched.email
+                        form.errors.email && form.touched.email,
                       )}
                     >
                       <Input
@@ -95,11 +123,12 @@ const App = () => {
                     </FormControl>
                   )}
                 </Field>
+
                 <Field name="password">
                   {({ field, form }: any) => (
                     <FormControl
                       isInvalid={Boolean(
-                        form.errors.password && form.touched.password
+                        form.errors.password && form.touched.password,
                       )}
                     >
                       <InputGroup>
@@ -109,7 +138,7 @@ const App = () => {
                           children={<CFaLock color="gray.300" />}
                         />
                         <Input
-                          type={showPassword ? "text" : "password"}
+                          type={showPassword ? 'text' : 'password'}
                           placeholder="Password"
                           id="password"
                           {...field}
@@ -120,13 +149,10 @@ const App = () => {
                             size="sm"
                             onClick={handleShowClick}
                           >
-                            {showPassword ? "Hide" : "Show"}
+                            {showPassword ? 'Hide' : 'Show'}
                           </Button>
                         </InputRightElement>
                       </InputGroup>
-                      <FormHelperText textAlign="right">
-                        <Link>forgot password?</Link>
-                      </FormHelperText>
                       <FormErrorMessage>required</FormErrorMessage>
                     </FormControl>
                   )}
@@ -140,7 +166,7 @@ const App = () => {
                   width="full"
                   isLoading={login.isLoading}
                 >
-                  Login
+                  Register
                 </Button>
               </Stack>
             </Form>

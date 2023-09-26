@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Button,
@@ -9,27 +9,27 @@ import {
   Input,
   SimpleGrid,
   Text,
-} from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Field, Form, Formik } from "formik";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import * as Yup from "yup";
-import { Queries } from "../../constant/requests";
-import { API } from "../../utils/api";
-import wait from "../../utils/wait";
-import { meloTask } from "../data/data";
+} from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Field, Form, Formik } from 'formik';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import * as Yup from 'yup';
+import { Queries } from '../../constant/requests';
+import { API } from '../../utils/api';
+import wait from '../../utils/wait';
+import { meloTask } from '../data/data';
 
 const EMPTY_TASK: MeloAppTask = {
-  id: "",
-  name: "",
-  created_at: "",
-  deleted_at: "",
-  updated_at: "",
+  id: '',
+  name: '',
+  created_at: '',
+  deleted_at: '',
+  updated_at: '',
 };
 
 const schema: Yup.ObjectSchema<CreateMeloAppTask> = Yup.object({
-  name: Yup.string().required("name is required"),
+  name: Yup.string().required('name is required'),
 }).shape({});
 
 export default function CreateTask() {
@@ -37,31 +37,30 @@ export default function CreateTask() {
   const queryClient = useQueryClient();
 
   const { data = EMPTY_TASK } = useQuery([Queries.GET_TASK], {
-    queryFn: async () => (await API.get<CreateMeloAppTask>(`/tasks`)).data
-
+    queryFn: async () => (await API.get<CreateMeloAppTask>(`/tasks`)).data,
   });
   const mutation = useMutation({
-    mutationFn: (data: CreateMeloAppTask) => API.post("/tasks", data),
+    mutationFn: (data: CreateMeloAppTask) => API.post('/tasks', data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [Queries.GET_TASKS],
-        refetchType: "all",
+        refetchType: 'all',
       });
-      alert("task is create");
+      alert('task is create');
 
-      router.replace("/dashboard");
+      router.replace('/dashboard');
     },
   });
 
   const initialValues: CreateMeloAppTask = {
-    name: "",
+    name: '',
   };
 
   return (
     <Flex direction="column" flex="1 1 auto">
       <Button
         as={Link}
-        href={"/dashboard"}
+        href={'/dashboard'}
         display="flex"
         justify-content="center"
         width="128px"
@@ -83,7 +82,7 @@ export default function CreateTask() {
         }}
       >
         {({ errors, touched, values }) => (
-          <Form style={{ flex: "0.75", marginTop: "30px" }}>
+          <Form style={{ flex: '0.75', marginTop: '30px' }}>
             <SimpleGrid columns={3} gap="5">
               <Flex direction="column" ml="5">
                 <Flex direction="column">
@@ -108,7 +107,7 @@ export default function CreateTask() {
                       <Input {...field} />
                       {form.errors.name && form.touched.name && (
                         <FormErrorMessage>
-                          {"Name is required"}
+                          {'Name is required'}
                         </FormErrorMessage>
                       )}
                     </FormControl>

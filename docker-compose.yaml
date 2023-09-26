@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001' # Frontend uygulamanızın portunu Docker konteynerına yönlendirin
+    volumes:
+      - /app/node_modules # Bu satırı ekleyin
+      - .:/app
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
