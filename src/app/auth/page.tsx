@@ -38,19 +38,28 @@ const App = () => {
   const handleShowClick = () => setShowPassword(!showPassword);
 
   const login = useMutation({
-    mutationFn: (response_data: MeloAppUser) =>
-      API.post('/login', response_data),
+    mutationFn: (response_data: any) => API.post('/login', response_data),
     onSuccess: (response_data) => {
       const { data } = response_data;
+
       window.localStorage.setItem('accessToken', data.accessToken);
       window.localStorage.setItem('refreshToken', data.refreshToken);
+      window.localStorage.setItem('sessionId', data.id);
       router.replace('/dashboard');
     },
-    onError: () => {
-      toast.error('Check Username and Password', {
-        duration: 3000,
-        position: 'top-right',
-      });
+    onError: (response_data) => {
+      const { response }: any = response_data;
+      if (response.status === 404) {
+        toast.error(response.data.exception.message, {
+          duration: 3000,
+          position: 'top-right',
+        });
+      } else {
+        toast.error('Check Username and Password', {
+          duration: 3000,
+          position: 'top-right',
+        });
+      }
     },
   });
 

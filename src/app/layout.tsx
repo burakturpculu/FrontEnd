@@ -1,16 +1,16 @@
-import { DM_Sans } from "next/font/google";
-import RootProvider from "./provider/RootProvider";
+import { DM_Sans } from 'next/font/google';
+import RootProvider from './provider/RootProvider';
 
 const dmSans = DM_Sans({
-  display: "swap",
-  weight: ["400", "500", "700"],
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
+  display: 'swap',
+  weight: ['400', '500', '700'],
+  variable: '--font-dm-sans',
+  subsets: ['latin'],
 });
 
 export const metadata = {
-  title: "MeloApp ",
-  description: "MeloApp Dashboard",
+  title: 'FrontEnd-Next JS  ',
+  description: 'Dashboard',
 };
 
 export default async function RootLayout({

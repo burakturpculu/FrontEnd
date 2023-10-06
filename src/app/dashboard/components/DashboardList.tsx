@@ -1,13 +1,27 @@
 'use client';
 
-import { AddIcon, EditIcon, SearchIcon, SettingsIcon } from '@chakra-ui/icons';
+import {
+  AddIcon,
+  ChevronDownIcon,
+  EditIcon,
+  InfoIcon,
+  SearchIcon,
+  SettingsIcon,
+  TriangleDownIcon,
+  CloseIcon,
+} from '@chakra-ui/icons';
 import {
   Box,
+  Button,
   Flex,
   Icon,
   Input,
   InputGroup,
   InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   SimpleGrid,
   Table,
   Tbody,
@@ -23,28 +37,48 @@ import { Queries } from '../../constant/requests';
 import { API } from '@/app/utils/api';
 import { useAuthStore } from '@/app/stores/auth.store';
 import { useState } from 'react';
-
-const EMPTY_MELOAPP_TASK: MeloAppTask[] = [];
+const EMPTY_TASK: any = [];
 
 export default function DashboardList() {
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const refreshToken = useAuthStore((state) => state.refreshToken);
+  // const accessToken = useAuthStore((state) => state.accessToken);
+  // const refreshToken = useAuthStore((state) => state.refreshToken);
+  const accessToken = window.localStorage.getItem('accessToken');
+  const refreshToken = window.localStorage.getItem('refreshToken');
+  const sessionId = window.localStorage.getItem('sessionId');
+
   const [searchTerm, setSearchTerm] = useState('');
   const headers = {
     authorization: `Bearer ${accessToken}`,
     refreshToken: refreshToken,
   };
-  const { data = EMPTY_MELOAPP_TASK } = useQuery([Queries.GET_TASKS], {
+  const [selectedLanguage, setSelectedLanguage] = useState('All');
+
+  const handleLanguageSelect = (language: any) => {
+    setSelectedLanguage(language);
+  };
+
+  const { data = EMPTY_TASK } = useQuery([Queries.GET_TASKS], {
     queryFn: async () =>
       (
-        await API.get<MeloAppTask[]>('/tasks', {
-          headers: headers,
-        })
+        await API.get<any>(
+          'https://newsapi.org/v2/top-headlines/sources?apiKey=d0c6003e6a754105b044a4730beb13d7',
+          // {
+          //   headers: headers,
+          // },
+        )
       ).data,
   });
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  let filteredData;
+  if (selectedLanguage != 'All') {
+    filteredData = data.sources.filter(
+      (item) => item.language === selectedLanguage,
+    );
+  } else {
+    filteredData = data.sources.filter((item) =>
+      item?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }
+
   return (
     <Flex flex="1 1 auto" direction="column">
       <Box
@@ -75,11 +109,35 @@ export default function DashboardList() {
             </InputGroup>
           </SimpleGrid>
           <Flex>
-            <Link href={`/user/edit`}>
-              <Box display="flex">
+            <Link href={`/auth`}>
+              <Box display="flex" marginRight="10px">
+                <Icon as={CloseIcon} w="24px" h="24px" />
+              </Box>
+            </Link>
+            <Link href={`/user/edit/${sessionId}`}>
+              <Box display="flex" marginRight="10px">
                 <Icon as={SettingsIcon} w="24px" h="24px" />
               </Box>
             </Link>
+            <Menu>
+              <MenuButton as={InfoIcon} w="24px" h="24px">
+                <ChevronDownIcon />
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => handleLanguageSelect('All')}>
+                  All
+                </MenuItem>
+                <MenuItem onClick={() => handleLanguageSelect('en')}>
+                  EN
+                </MenuItem>
+                <MenuItem onClick={() => handleLanguageSelect('tr')}>
+                  TR
+                </MenuItem>
+                <MenuItem onClick={() => handleLanguageSelect('it')}>
+                  IT
+                </MenuItem>
+              </MenuList>
+            </Menu>{' '}
           </Flex>
         </Flex>
 
@@ -88,12 +146,6 @@ export default function DashboardList() {
             <Flex flex="1 1 auto">
               <Text fontWeight="bold">List Tasks</Text>
             </Flex>
-
-            <Link href={`/dashboard/create`}>
-              <Box display="flex" justifyItems="center">
-                <Icon as={AddIcon} w="24px" h="24px" />
-              </Box>
-            </Link>
           </Flex>
           <Box overflowX="scroll">
             <Table variant="simple">
@@ -106,21 +158,24 @@ export default function DashboardList() {
                     name
                   </Th>
                   <Th fontSize="14" fontFamily="var(--font-dm-sans)">
-                    created at
+                    description
                   </Th>
                   <Th fontSize="14" fontFamily="var(--font-dm-sans)">
-                    update at
+                    url
                   </Th>
                   <Th fontSize="14" fontFamily="var(--font-dm-sans)">
-                    deleted at
+                    category
                   </Th>
                   <Th fontSize="14" fontFamily="var(--font-dm-sans)">
-                    edit
+                    language
+                  </Th>
+                  <Th fontSize="14" fontFamily="var(--font-dm-sans)">
+                    country
                   </Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {filteredData.map((value: MeloAppTask) => (
+                {filteredData.map((value) => (
                   <Tr key={value.id}>
                     <Td fontSize="14" fontWeight="bold">
                       {value.id || '-'}
@@ -129,20 +184,19 @@ export default function DashboardList() {
                       {value.name || '-'}
                     </Td>
                     <Td fontSize="14" fontWeight="bold">
-                      {value.created_at || '-'}
+                      {value.description || '-'}
                     </Td>
                     <Td fontSize="14" fontWeight="bold">
-                      {value.updated_at || '-'}
+                      {value.url || '-'}
                     </Td>
                     <Td fontSize="14" fontWeight="bold">
-                      {value.deleted_at || '-'}
+                      {value.category || '-'}
                     </Td>
-                    <Td>
-                      <Link href={`/dashboard/edit/${value.id}`}>
-                        <Box display="flex" justifyItems="center">
-                          <Icon as={EditIcon} w="24px" h="24px" />
-                        </Box>
-                      </Link>
+                    <Td fontSize="14" fontWeight="bold">
+                      {value.language || '-'}
+                    </Td>
+                    <Td fontSize="14" fontWeight="bold">
+                      {value.country || '-'}
                     </Td>
                   </Tr>
                 ))}

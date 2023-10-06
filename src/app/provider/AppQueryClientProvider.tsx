@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 import {
   MutationCache,
   QueryClient,
   QueryClientProvider,
-} from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { useState } from "react";
-import toast, { ToastOptions } from "react-hot-toast";
+} from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
+import toast, { ToastOptions } from 'react-hot-toast';
 
-export default function MeloAppQueryClientProvider({
+export default function FrontQueryClientProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -22,19 +22,22 @@ export default function MeloAppQueryClientProvider({
 
       const commonToastOptions: ToastOptions = {
         duration: 5000,
-        position: "top-right",
+        position: 'top-right',
       };
 
       if (error instanceof AxiosError) {
         if (error.response?.data?.exception?.message) {
-          toast.error(`${error.response.data.exception?.message}`, commonToastOptions);
+          toast.error(
+            `${error.response.data.exception?.message}`,
+            commonToastOptions,
+          );
           return;
         }
 
         if (error.response?.data?.resourceCode) {
           toast.error(
             `${error.response.data.resourceCode}`,
-            commonToastOptions
+            commonToastOptions,
           );
           return;
         }
@@ -47,7 +50,7 @@ export default function MeloAppQueryClientProvider({
         }
       }
 
-      toast.error("errors.unknown", commonToastOptions);
+      toast.error('errors.unknown', commonToastOptions);
     },
   });
   const [queryClient] = useState(
@@ -63,7 +66,7 @@ export default function MeloAppQueryClientProvider({
             refetchOnReconnect: false,
           },
         },
-      })
+      }),
   );
 
   return (

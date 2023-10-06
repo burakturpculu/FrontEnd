@@ -16,16 +16,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import * as Yup from 'yup';
-import { Queries } from '../../constant/requests';
-import { API } from '../../utils/api';
-import wait from '../../utils/wait';
+import { Queries } from '../../../constant/requests';
+import { API } from '../../../utils/api';
 import { useAuthStore } from '@/app/stores/auth.store';
 
 type Props = {
   id: string;
 };
 
-const EMPTY_TASK: MeloAppTask = {
+const EMPTY_TASK: any = {
   id: '',
   name: '',
   created_at: '',
@@ -33,13 +32,11 @@ const EMPTY_TASK: MeloAppTask = {
   updated_at: '',
 };
 
-const schema: Yup.ObjectSchema<UpdateMeloAppTask> = Yup.object({
+const schema: Yup.ObjectSchema<any> = Yup.object({
   name: Yup.string().required('name is required'),
 }).shape({});
 
-export default function EditUser(props: Props) {
-  const accessToken = useAuthStore((state) => state.accessToken);
-
+export default function EditUser({ params }: { params: any }) {
   const router = useRouter();
   const [save, setSave] = useState(false);
   const queryClient = useQueryClient();
@@ -47,37 +44,35 @@ export default function EditUser(props: Props) {
   const clickHandler = () => {
     setSave(true);
   };
-  const { data = EMPTY_TASK } = useQuery([Queries.GET_TASK, props.id], {
-    queryFn: async () =>
-      (await API.get<MeloAppTask>(`/tasks/${props.id}`)).data,
+  const { data = EMPTY_TASK } = useQuery([Queries.GET_USER, params.id], {
+    queryFn: async () => (await API.get<any>(`/user/${params.id}`)).data,
   });
   const editMutation = useMutation({
-    mutationFn: (data: UpdateMeloAppTask) =>
-      API.patch(`/tasks/${props.id}`, data),
+    mutationFn: (data: UpdateUser) => API.patch(`/user/${params.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [Queries.GET_TASKS],
+        queryKey: [Queries.GET_USER],
         refetchType: 'all',
       });
-      alert('task is edited');
+      alert('user is edited');
 
       router.replace('/dashboard');
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => API.delete(`/tasks/${props.id}`),
+    mutationFn: () => API.delete(`/user/${params.id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [Queries.GET_TASKS],
+        queryKey: [Queries.GET_USER],
         refetchType: 'all',
       });
-      alert('task is deleted');
-      router.replace('/dashboard');
+      alert('user is deleted');
+      router.replace('/auth');
     },
   });
 
-  const initialValues: MeloAppTask = {
+  const initialValues: any = {
     id: data.id,
     name: data.name,
     created_at: data.created_at,

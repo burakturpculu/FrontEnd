@@ -4,20 +4,13 @@ type BaseEntity<T> = T & {
   deleted_at: string;
 };
 
-declare type MeloAppUser = {
+declare type newUser = {
+  name: string;
   email: string;
   password: string;
+  surname: string;
 };
 
-declare type MeloAppTask = BaseEntity<{
-  id: string;
-  name: string;
-}>;
-
-declare type UpdateMeloAppTask = {
-  name: string;
-};
-
-declare type CreateMeloAppTask = {
+declare type UpdateUser = {
   name: string;
 };

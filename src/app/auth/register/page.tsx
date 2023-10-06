@@ -17,6 +17,7 @@ import {
   Stack,
   chakra,
 } from '@chakra-ui/react';
+
 import { useMutation } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/navigation';
@@ -25,29 +26,31 @@ import { FaLock } from 'react-icons/fa';
 import { API } from '../../utils/api';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../stores/auth.store';
+import * as Yup from 'yup';
 
 const CFaLock = chakra(FaLock);
 
-const App = () => {
-  // const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  // const setRefreshToken = useAuthStore((state) => state.setRefreshToken);
+const schema: Yup.ObjectSchema<any> = Yup.object({
+  name: Yup.string().required('name is required'),
+  password: Yup.string().required('password is required'),
+  surname: Yup.string().required('surname is required'),
+  email: Yup.string().required('email is required'),
+}).shape({});
 
+const App = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleShowClick = () => setShowPassword(!showPassword);
 
-  const login = useMutation({
-    mutationFn: (response_data: MeloAppUser) =>
-      API.post('/login', response_data),
-    onSuccess: (response_data) => {
-      const { data } = response_data;
-      window.localStorage.setItem('accessToken', data.accessToken);
-      window.localStorage.setItem('refreshToken', data.refreshToken);
-      router.replace('/dashboard');
+  const register = useMutation({
+    mutationFn: (response_data: newUser) =>
+      API.post('/user/save', response_data),
+    onSuccess: () => {
+      router.replace('/auth');
     },
-    onError: () => {
-      toast.error('Check Username and Password', {
+    onError: (error) => {
+      toast.error(error.message, {
         duration: 3000,
         position: 'top-right',
       });
@@ -64,13 +67,19 @@ const App = () => {
       alignItems="center"
     >
       <Formik
-        initialValues={{ email: '', password: '' }}
+        initialValues={{ email: '', password: '', name: '', surname: '' }}
+        validationSchema={schema}
         onSubmit={(values) => {
-          if (login.isLoading) {
+          if (register.isLoading) {
             return;
           }
 
-          login.mutate({ email: values.email, password: values.password });
+          register.mutate({
+            email: values.email,
+            password: values.password,
+            name: values.name,
+            surname: values.surname,
+          });
         }}
       >
         <Stack
@@ -92,14 +101,29 @@ const App = () => {
                 <Field name="name">
                   {({ field, form }: any) => (
                     <FormControl
-                      isInvalid={Boolean(
-                        form.errors.email && form.touched.email,
-                      )}
+                      isInvalid={Boolean(form.errors.name && form.touched.name)}
                     >
                       <Input
                         type="name"
                         placeholder="Name"
                         id="name"
+                        {...field}
+                      />
+                      <FormErrorMessage>required</FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
+                <Field name="surname">
+                  {({ field, form }: any) => (
+                    <FormControl
+                      isInvalid={Boolean(
+                        form.errors.surname && form.touched.surname,
+                      )}
+                    >
+                      <Input
+                        type="surname"
+                        placeholder="surname"
+                        id="surname"
                         {...field}
                       />
                       <FormErrorMessage>required</FormErrorMessage>
@@ -157,14 +181,23 @@ const App = () => {
                     </FormControl>
                   )}
                 </Field>
-
+                <Button
+                  as={Link}
+                  href={'/auth'}
+                  variant="solid"
+                  colorScheme="teal"
+                  width="full"
+                  borderRadius={0}
+                >
+                  Back
+                </Button>
                 <Button
                   borderRadius={0}
                   type="submit"
                   variant="solid"
                   colorScheme="teal"
                   width="full"
-                  isLoading={login.isLoading}
+                  isLoading={register.isLoading}
                 >
                   Register
                 </Button>
