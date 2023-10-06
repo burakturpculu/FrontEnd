@@ -51,6 +51,9 @@ export default function DashboardList() {
     authorization: `Bearer ${accessToken}`,
     refreshToken: refreshToken,
   };
+  const url: string = process.env.NEW_API;
+
+  console.log(url, 'url');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
 
   const handleLanguageSelect = (language: any) => {
@@ -60,8 +63,8 @@ export default function DashboardList() {
   const { data = EMPTY_TASK } = useQuery([Queries.GET_TASKS], {
     queryFn: async () =>
       (
-        await API.get<any>(
-          'https://newsapi.org/v2/top-headlines/sources?apiKey=d0c6003e6a754105b044a4730beb13d7',
+        await API.get<string>(
+          `${url}`,
           // {
           //   headers: headers,
           // },
